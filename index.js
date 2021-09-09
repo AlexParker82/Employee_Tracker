@@ -1,5 +1,6 @@
 const inquirer = require("inquirer");
 const mysql = require("mysql2/promise");
+const cTable = require("console.table");
 require("dotenv").config();
 
 mysql.createConnection(
@@ -10,11 +11,15 @@ mysql.createConnection(
         database: process.env.DB_NAME
     }
 ).then((connection) => {
-    console.info('Connected to database.');
+    console.info("Connected to database.");
     const db = connection
 
     db.query("SELECT * FROM emp_role")
-    .then((results) => console.log(results))
+    .then((results) => {
+        const table = cTable.getTable(results[0]);
+
+        console.log(table);
+    })
     .catch((exc) => console.error(exc));
 
 }).catch((exc) => console.error(exc));
