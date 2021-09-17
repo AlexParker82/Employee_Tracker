@@ -1,7 +1,7 @@
+require("dotenv").config();
 const inquirer = require("inquirer");
 const mysql = require("mysql2/promise");
 const cTable = require("console.table");
-require("dotenv").config();
 
 const connParams = {
     host: process.env.DB_HOST,
@@ -9,10 +9,6 @@ const connParams = {
     password: process.env.DB_PASS,
     database: process.env.DB_NAME
 };
-
-
-
-
 
 
 // initializing app
@@ -64,11 +60,10 @@ const initialPrompt = () => {
     ]).then((data) => {
         const { main } = data;
 
-        console.log(main);
-
         switch (main) {
             case "View All Employees":
                 viewEmployees();
+
                 break;
             case "View All Departments":
                 viewDepartments();
@@ -79,6 +74,7 @@ const initialPrompt = () => {
 
                 break;
             case "Add Employee":
+                addEmployee();
 
                 break;
             case "Add Department":
@@ -94,19 +90,19 @@ const initialPrompt = () => {
                 console.log("Select and option");
         };
 
+
     }).catch((err) => console.error(err));
+
 };
-
-
 
 const viewEmployees = () => {
 
     mysql.createConnection(connParams)
         .then((connection) => {
 
-            const db = connection
+            const db = connection;
 
-            db.query("SELECT first_name, last_name FROM employee JOIN emp_role ON employee.role_id = emp_role.id;")
+            db.query("SELECT first_name, last_name, title, salary FROM employee JOIN emp_role ON employee.role_id = emp_role.id;")
                 .then((results) => {
                     console.table(results[0]);
                     initialPrompt();
@@ -118,11 +114,89 @@ const viewEmployees = () => {
 };
 
 const viewDepartments = () => {
+    mysql.createConnection(connParams)
+        .then((connection) => {
 
-    db.query("SELECT ")
-}
+            const db = connection;
+
+            db.query("SELECT name FROM department")
+                .then((results) => {
+                    console.table(results[0]);
+                    initialPrompt();
+                })
+                .catch((err) => console.error(err));
+        })
+        .catch((err) => console.error(err));
+
+
+};
+
+const viewRoles = () => {
+    mysql.createConnection(connParams)
+        .then((connection) => {
+
+            const db = connection;
+
+            db.query("SELECT title, salary FROM emp_role")
+                .then((results) => {
+                    console.table(results[0]);
+                    initialPrompt();
+                })
+                .catch((err) => console.error(err));
+        })
+        .catch((err) => console.error(err));
+
+
+};
+
+const addEmployee = () => {
+    inquirer.prompt([
+        {
+            type: "input",
+            name: "firstName",
+            message: "Enter employee first name:"
+        },
+        {
+            type: "input",
+            name: "lastName",
+            message: "Enter employee last name:"
+        },
+        {
+            type: "input",
+            name: "roleId",
+            message: "Enter employee role ID:"
+        },
+        {
+            type: "input",
+            name: "managerId",
+            message: "Enter manager ID:"
+        }
+
+    ]).then((data) => {
+        const { firstName, lastName, roleId, managerId } = data;
+
+        mysql.createConnection(connParams)
+            .then((connection) => {
+                const db = connection;
+
+                db.query(`INSERT INTO employee (first_name, last_name, role_id, manager_id) VALUES("${firstName}", "${lastName}", ${roleId}, ${managerId});`)
+                    .then((results) => {
+                        console.table(results[0]);
+                        initialPrompt();
+
+                    }).catch((err) => console.error(err));
+
+            }).catch((err) => console.error(err));
+
+    }).catch((err) => console.error(err));
+
+};
+
 
 init();
+
+
+
 
 
 
