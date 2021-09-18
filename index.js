@@ -78,6 +78,7 @@ const initialPrompt = () => {
 
                 break;
             case "Add Department":
+                addDepartment();
 
                 break;
             case "Add Role":
@@ -87,7 +88,7 @@ const initialPrompt = () => {
 
                 break;
             default:
-                console.log("Select and option");
+                console.log("Select an option");
         };
 
 
@@ -190,6 +191,28 @@ const addEmployee = () => {
 
     }).catch((err) => console.error(err));
 
+};
+
+const addDepartment = () => {
+    inquirer.prompt([
+        {
+            type: "input",
+            name: "department",
+            message: "Add department:",
+        }
+    ]).then((data) => {
+        const { department } = data;
+
+        mysql.createConnection(connParams)
+        .then((connection) => {
+            const db = connection;
+            db.query(`INSERT INTO department (name) VALUES ("${department}")`)
+            .then((results) => {
+                console.table(results[0]);
+                initialPrompt();
+            }).catch((err) => console.error(err));
+        }).catch((err) => console.error(err));
+    }).catch((err) => console.error(err));
 };
 
 
