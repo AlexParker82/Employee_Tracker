@@ -82,6 +82,7 @@ const initialPrompt = () => {
 
                 break;
             case "Add Role":
+                addRole();
 
                 break;
             case "Update Employee Role":
@@ -103,7 +104,7 @@ const viewEmployees = () => {
 
             const db = connection;
 
-            db.query("SELECT first_name, last_name, title, salary FROM employee JOIN emp_role ON employee.role_id = emp_role.id;")
+            db.query("SELECT first_name, last_name, title, salary, name AS department FROM employee JOIN emp_role ON employee.role_id = emp_role.id JOIN department ON emp_role.department_id = department.id;")
                 .then((results) => {
                     console.table(results[0]);
                     initialPrompt();
@@ -198,7 +199,7 @@ const addDepartment = () => {
         {
             type: "input",
             name: "department",
-            message: "Add department:",
+            message: "Add department:"
         }
     ]).then((data) => {
         const { department } = data;
@@ -214,6 +215,38 @@ const addDepartment = () => {
         }).catch((err) => console.error(err));
     }).catch((err) => console.error(err));
 };
+
+const addRole = () => {
+    inquirer.prompt([
+        {
+            type: "input",
+            name: "title",
+            message: "Add role title:"
+        },
+        {
+            type: "input",
+            name: "salary",
+            message: "Add role salary:"
+        },
+        {
+            type: "input",
+            name: "department_id",
+            message: "Add department ID:"
+        }
+    ]).then((data) => {
+        const { title, salary, department_id } = data;
+
+        mysql.createConnection(connParams)
+        .then((connection) => {
+            const db = connection;
+            db.query(`INSERT INTO emp_role (title, salary, department_id) VALUES ("${title}", ${salary}, ${department_id})`)
+            .then((results) => {
+                console.table(results[0]);
+                initialPrompt();
+            }).catch((err) => console.error(err));
+        }).catch((err) => console.error(err));
+    }).catch((err) => console.error(err));
+}
 
 
 init();
