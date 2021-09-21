@@ -86,6 +86,7 @@ const initialPrompt = () => {
 
                 break;
             case "Update Employee Role":
+                updateRole();
 
                 break;
             default:
@@ -104,7 +105,7 @@ const viewEmployees = () => {
 
             const db = connection;
 
-            db.query("SELECT first_name, last_name, title, salary, name AS department FROM employee JOIN emp_role ON employee.role_id = emp_role.id JOIN department ON emp_role.department_id = department.id;")
+            db.query("SELECT * FROM employee JOIN emp_role ON employee.role_id = emp_role.id JOIN department ON emp_role.department_id = department.id;")
                 .then((results) => {
                     console.table(results[0]);
                     initialPrompt();
@@ -121,7 +122,7 @@ const viewDepartments = () => {
 
             const db = connection;
 
-            db.query("SELECT name FROM department")
+            db.query("SELECT * FROM department;")
                 .then((results) => {
                     console.table(results[0]);
                     initialPrompt();
@@ -139,7 +140,7 @@ const viewRoles = () => {
 
             const db = connection;
 
-            db.query("SELECT title, salary FROM emp_role")
+            db.query("SELECT * FROM emp_role JOIN department ON emp_role.department_id = department.id;")
                 .then((results) => {
                     console.table(results[0]);
                     initialPrompt();
@@ -207,7 +208,7 @@ const addDepartment = () => {
         mysql.createConnection(connParams)
         .then((connection) => {
             const db = connection;
-            db.query(`INSERT INTO department (name) VALUES ("${department}")`)
+            db.query(`INSERT INTO department (name) VALUES ("${department}");`)
             .then((results) => {
                 console.table(results[0]);
                 initialPrompt();
@@ -239,17 +240,50 @@ const addRole = () => {
         mysql.createConnection(connParams)
         .then((connection) => {
             const db = connection;
-            db.query(`INSERT INTO emp_role (title, salary, department_id) VALUES ("${title}", ${salary}, ${department_id})`)
+            db.query(`INSERT INTO emp_role (title, salary, department_id) VALUES ("${title}", ${salary}, ${department_id});`)
             .then((results) => {
                 console.table(results[0]);
                 initialPrompt();
             }).catch((err) => console.error(err));
         }).catch((err) => console.error(err));
     }).catch((err) => console.error(err));
+};
+
+const updateRole = () => {
+    inquirer.prompt([
+        {
+            type: "input",
+            name: "emp_id",
+            message: "What is the ID# of the employee you would like to update?"
+        },
+        {
+            type: "input",
+            name: "role_id",
+            message: "Enter the role ID# you would like to change to:"
+        }
+    ]).then((data) => {
+        const { emp_id, role_id } = data;
+
+        mysql.createConnection(connParams)
+        .then((connection) => {
+            const db = connection;
+            db.query(`UPDATE employee SET role_id = ${role_id} WHERE id = ${emp_id};`)
+            .then((results) => {
+                if (!results) {
+                    console.info("Enter a valid ID!");
+                    return;
+                }
+                console.table(results[0]);
+                initialPrompt();
+            }).catch((err) => console.error(err));
+        }).catch((err) => console.error(err));
+    }).catch((err) => console.error(err));
+
 }
 
 
 init();
+
 
 
 
