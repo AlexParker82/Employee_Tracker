@@ -16,7 +16,7 @@ A node app that can be used to manage a database of employees.  Functionality to
 npm install in console
 
 ## Usage
-Video demonstrating the functionality: https://watch.screencastify.com/v/SfESWq6fRUVBuuRgWB8N
+Video demonstrating the functionality: https://drive.google.com/file/d/1JPS6r3srecPrcU0wEi3Wksgz3TF82lAf/view
 
 ## License
 none 
