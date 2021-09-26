@@ -13,30 +13,13 @@ const connParams = {
 
 // initializing app
 const init = () => {
-
-
-    `____________________________________________________________
-    |                                                          |
-    |     ______                 _                             |
-    |    | _____|_ __ ___  _ __ | | ___  _   _  ___  ___       |
-    |    |  _|  | '_  '_ \| '_ \| |/ _ \| | | |/ _ \/ _ \      |
-    |    | |____| | | | | | |_) | | (_) | |_| |  __/  __/      |
-    |    |______|_| |_| |_| .__/|_|\___/\___, |\___|\___|      |
-    |                     |_|            |___/                 |
-    |                                                          |
-    |     __  __                                               |
-    |    |  \/  | __ _ _ __   __ _  __ _  ___ _ __             |
-    |    | |\/| |/ _' | '_ \ / _' |/ _' |/ _ \ '__|            |
-    |    | |  | | (_) | | | | (_| | (_| |  __/ |               |
-    |    |_|  |_|\__,_|_| |_|\__,_|\__, |\___|_|               |
-    |                              |___/                       |
-    |__________________________________________________________| `;
-
     initialPrompt();
-
-
-
 };
+
+
+    
+    
+    
 
 
 
@@ -54,7 +37,8 @@ const initialPrompt = () => {
                 "Add Employee",
                 "Add Department",
                 "Add Role",
-                "Update Employee Role"
+                "Update Employee Role",
+                "Exit"
             ]
         }
     ]).then((data) => {
@@ -89,8 +73,9 @@ const initialPrompt = () => {
                 updateRole();
 
                 break;
-            default:
-                console.log("Select an option");
+            case "Exit":
+                console.log("Goodbye!");
+                process.exit();
         };
 
 
@@ -105,7 +90,7 @@ const viewEmployees = () => {
 
             const db = connection;
 
-            db.query("SELECT * FROM employee JOIN emp_role ON employee.role_id = emp_role.id JOIN department ON emp_role.department_id = department.id;")
+            db.query("SELECT first_name, last_name, title, salary, name FROM employee JOIN emp_role ON employee.role_id = emp_role.id JOIN department ON emp_role.department_id = department.id;")
                 .then((results) => {
                     console.table(results[0]);
                     initialPrompt();
@@ -140,7 +125,7 @@ const viewRoles = () => {
 
             const db = connection;
 
-            db.query("SELECT * FROM emp_role JOIN department ON emp_role.department_id = department.id;")
+            db.query("SELECT emp_role.id, title, salary, name FROM emp_role JOIN department ON emp_role.department_id = department.id;")
                 .then((results) => {
                     console.table(results[0]);
                     initialPrompt();
@@ -153,6 +138,7 @@ const viewRoles = () => {
 };
 
 const addEmployee = () => {
+                    
     inquirer.prompt([
         {
             type: "input",
@@ -167,7 +153,7 @@ const addEmployee = () => {
         {
             type: "input",
             name: "roleId",
-            message: "Enter employee role ID:"
+            message: "Enter employee role ID:",
         },
         {
             type: "input",
@@ -184,7 +170,7 @@ const addEmployee = () => {
 
                 db.query(`INSERT INTO employee (first_name, last_name, role_id, manager_id) VALUES("${firstName}", "${lastName}", ${roleId}, ${managerId});`)
                     .then((results) => {
-                        console.table(results[0]);
+                        console.info("Employee added");
                         initialPrompt();
 
                     }).catch((err) => console.error(err));
@@ -210,7 +196,7 @@ const addDepartment = () => {
             const db = connection;
             db.query(`INSERT INTO department (name) VALUES ("${department}");`)
             .then((results) => {
-                console.table(results[0]);
+                console.info("Department Added")
                 initialPrompt();
             }).catch((err) => console.error(err));
         }).catch((err) => console.error(err));
@@ -242,7 +228,7 @@ const addRole = () => {
             const db = connection;
             db.query(`INSERT INTO emp_role (title, salary, department_id) VALUES ("${title}", ${salary}, ${department_id});`)
             .then((results) => {
-                console.table(results[0]);
+                console.info("Role added");
                 initialPrompt();
             }).catch((err) => console.error(err));
         }).catch((err) => console.error(err));
@@ -273,7 +259,7 @@ const updateRole = () => {
                     console.info("Enter a valid ID!");
                     return;
                 }
-                console.table(results[0]);
+                console.info("Employee updated");
                 initialPrompt();
             }).catch((err) => console.error(err));
         }).catch((err) => console.error(err));
